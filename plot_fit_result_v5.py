@@ -19,33 +19,32 @@ from matplotlib.ticker import FormatStrFormatter
 EXT = "h5"
 PATH_TO_MASS_FR = "/xrf_fit/results/massfractions/"
 PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
-#here you set the intensity scale
 
 # Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
-'Al_K':[0,3e-2],
-'Ca_K':[0.25,0.45],
-'As_K':[1e-7,5e-6],
-'Fe_K':[0,2e-4],
-'Cl_K':[0,4e-3],
-'K_K':[0,1e-3],
-'S_K':[0,1e-3]
+#'Al_K':[0,3e-2],
+'Ca_K':[0.25,0.45]
+#'As_K':[1e-7,5e-6],
+#'Fe_K':[0,2e-4],
+#'Cl_K':[0,4e-3],
+#'K_K':[0,1e-3],
+#'S_K':[0,1e-3]
 } 
 
 # Here one defines the elements to ignore
 Elem_to_ignore = [
-'As_K',
-'Ba_L',
-'Br_K',
-'Cr_K',
-'Cu_K',
-'Hg_L',
-'Mn_K',
-'Ni_K',
-'P_K',
+'Al_K',
+'Cl_L',
+#'Br_K',
+#'Cr_K',
+#'Cu_K',
+#'Hg_L',
+#'Mn_K',
+#'Ni_K',
+#'P_K',
+'S_K',
 'Si_K',
-'Ti_K',
-'Zn_K'
+'Ti_K'
 ]
 
 # Here one sets the font size of the title and of the single plots
@@ -66,17 +65,18 @@ def look_for_maps(in_file):
     
     try:
         list_elem = list(f[path].keys())
-        title = 'Fluorescence Intensities (arb. units) from '+in_file[:-3]
+        title = 'Mass Fractions from '+in_file[:-3]
     except KeyError:
         no_concentrations = True
         print('\tNo concentrations found! Plotting intensities!')
         path = key + PATH_TO_PARAMS
         list_elem = list(f[path].keys())
         list_elem = [x for x in list_elem if len(x)<=4]    
-        title = 'Mass Fractions from '+in_file[:-3]
+        title = 'Fluorescence Intensities (arb. units) from '+in_file[:-3]
     
     # Here we remove the elements we have decided to ignore
-    print('Ignoring the following elements: ' + str(Elem_to_ignore))
+    if len(Elem_to_ignore) > 0:
+        print('\tIgnoring the following elements: ' + str(Elem_to_ignore))
     list_elem = [x for x in list_elem if x not in Elem_to_ignore]
     num_elem = len(list_elem)
     row = math.floor(math.sqrt(num_elem))
@@ -154,9 +154,9 @@ def run():
     print('\t-------------------------------------------------\n')
     
     in_path = './'
-    out_path = in_path + 'plots'
-    # if out_path is read only, uncomment next line
-    # out_path = str(input('Where do you want to save the reshaped maps?' ))
+    #out_path = in_path + 'plots'
+    # in case out_path is read only, uncomment next line
+    #out_path = str(input('Where do you want to save the reshaped maps?' ))
     
     # checks automatically all the h5 files in the in_path 
     file_list = glob.glob('{0}/*'.format(in_path)+EXT)
