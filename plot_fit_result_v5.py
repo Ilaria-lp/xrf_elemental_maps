@@ -21,6 +21,7 @@ PATH_TO_MASS_FR = "/xrf_fit/results/massfractions/"
 PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
 #here you set the intensity scale
 
+# Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
 'Al_K':[0,3e-2],
 'Ca_K':[0.25,0.45],
@@ -31,6 +32,7 @@ Elem_dict = {
 'S_K':[0,1e-3]
 } 
 
+# Here one defines the elements to ignore
 Elem_to_ignore = [
 'As_K',
 'Ba_L',
@@ -46,6 +48,7 @@ Elem_to_ignore = [
 'Zn_K'
 ]
 
+# Here one sets the font size of the title and of the single plots
 fig_title_font = 10
 plot_title_font = 8
 
