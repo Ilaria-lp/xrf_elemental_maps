@@ -11,10 +11,11 @@ __email__ = "ilaria.carlomagno@elettra.eu"
 import glob
 import h5py
 import math
-import numpy as np
-import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+from mpl_toolkits.axes_grid1 import ImageGrid
+import numpy as np
+import os
 
 EXT = "h5"
 PATH_TO_MASS_FR = "/xrf_fit/results/massfractions/"
@@ -22,9 +23,9 @@ PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
 
 # Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
-#'Al_K':[0,3e-2],
-#'Ca_K':[0.41,0.45],
-#'P_K':[1e-7,5e-6],
+'Ca_K':[0.412881,0.412919],
+'P_K':[0,1.6],
+'Ni_K':[0,1.6e-4],
 'Zn_K':[0,1.855e-3]
 } 
 
@@ -80,6 +81,34 @@ def look_for_maps(in_file):
 def plot_elemental_maps(filename, list_elem, row, col, title, path):
     #fig, axes = plt.subplots(row, col, figsize=(map_width, map_height))
     f = h5py.File(filename, 'r')
+    maps_to_plot = {}
+    
+    for element in Elem_dict:
+        maps_to_plot[element] = f[path][element]
+        
+    #new package
+    fig = plt.figure(figsize=(4., 4.))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(row, col),  # creates grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 )
+    # Iterating over the grid returns the Axes.
+    for ax, im, index in zip(grid, maps_to_plot.values(), range(len(list_elem))):
+        map_min = np.min(im)
+        map_max = np.max(im)
+        #plt.imshow(im, interpolation='none', cmap='jet', )
+        ax.set_title(list_elem[index], fontsize=plot_title_font)
+        
+        ax.imshow(im, vmin=map_min, vmax=map_max)
+
+    plt.axis('off')
+    plt.savefig(filename[:-3]+'_maps.png')
+    plt.close()
+    return None
+    
+    
+    #################################
+    
     fig, axes = plt.subplots(row, col)
     fig.subplots_adjust(hspace=0.5, wspace=0.15)  
     index = 0
@@ -110,6 +139,8 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         plt.close()
         return None
     
+    
+    
     for r in range(row):       
         for c in range(col):            
             if index < len(list_elem):
@@ -129,16 +160,17 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
                 cbar_pos = 'right'
                 #if is_flat:
                 #    cbar_pos = 'bottom'
-                ###cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40, location=cbar_pos)
+                cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40, location=cbar_pos)
                 
                 min_val = np.min(map)
                 max_val = np.max(map)
                 med_val = (min_val+max_val)/2
                 my_ticks = np.round( [min_val,med_val, max_val],2 )
-                ###cbar.set_ticks(my_ticks)
-                ###cbar.formatter.set_powerlimits((0, 0))
-                ###cbar.formatter.set_useMathText(True)
-                ###cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
+                cbar.set_ticks(my_ticks)
+                cbar.formatter.set_powerlimits((0, 0))
+                cbar.formatter.set_useMathText(True)
+                
+                #cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
 
                 index += 1
             else:
