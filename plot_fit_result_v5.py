@@ -23,10 +23,10 @@ PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
 
 # Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
-'Ca_K':[0.412881,0.412919],
-'P_K':[0,1.6],
-'Ni_K':[0,1.6e-4],
-'Zn_K':[0,1.855e-3]
+'Ca_K':[0.412881,0.412919]
+#'P_K':[0,1.6],
+#'Ni_K':[0,1.6e-4],
+#'Zn_K':[0,1.855e-3]
 } 
 
 # Here one sets the font size of the title and of the single plots
@@ -104,6 +104,10 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
 
     plt.suptitle(title)
     plt.axis('off')
+    if len(list_elem) ==1:
+        plt.savefig(filename[:-3]+element+'.png')
+        plt.close()
+        return None
     plt.savefig(filename[:-3]+'_maps.png')
     plt.close()
     return None
@@ -119,10 +123,10 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
 
     # handling the case when a single elemental maps has to be plotted
     if len(list_elem) == 1:
-        print('plotting single map')
-        element = list_elem[0]
-        map_min = Elem_dict[element][0]
-        map_max = Elem_dict[element][1]
+        #print('plotting single map')
+        #element = list_elem[0]
+        #map_min = Elem_dict[element][0]
+        #map_max = Elem_dict[element][1]
         map = np.array(f[path][element])
         ax = axes
         im = plt.imshow(map, interpolation='none', cmap='jet', vmin=map_min, vmax=map_max)
