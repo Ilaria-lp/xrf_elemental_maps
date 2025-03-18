@@ -22,9 +22,10 @@ PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
 
 # Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
-#'Al_K':[0,3e-2],
-'Ca_K':[0.25,0.45]
-#'As_K':[1e-7,5e-6],
+'Al_K':[0,3e-2],
+'Ca_K':[0.41,0.45],
+'P_K':[1e-7,5e-6],
+'Zn_K':[1e-7,5e-6],
 } 
 
 # Here one sets the font size of the title and of the single plots
@@ -141,8 +142,8 @@ def run():
     
     # checks automatically all the h5 files in the in_path 
     file_list = glob.glob('{0}/*'.format(in_path)+EXT)
-    print('I found '+str(len(file_list))+' files matching the extension '+EXT+':')
-    print(file_list)
+    print('\tI found '+str(len(file_list))+' files matching the extension '+EXT+':')
+    print('\t' + str(file_list))
     print('\n')
     
     if len(file_list) == 0:
