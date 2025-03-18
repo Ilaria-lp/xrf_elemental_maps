@@ -22,10 +22,10 @@ PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
 
 # Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
-'Al_K':[0,3e-2],
-'Ca_K':[0.41,0.45],
-'P_K':[1e-7,5e-6],
-'Zn_K':[1e-7,5e-6],
+#'Al_K':[0,3e-2],
+#'Ca_K':[0.41,0.45],
+#'P_K':[1e-7,5e-6],
+'Zn_K':[0,1.855e-3]
 } 
 
 # Here one sets the font size of the title and of the single plots
@@ -84,6 +84,22 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     fig.subplots_adjust(hspace=0.5, wspace=0.15)  
     index = 0
     fig.suptitle(title, fontsize=fig_title_font)
+    
+    if len(list_elem) == 1:
+        # add exception for plotting single maps
+        # this will avoid TypeError 
+        print('plotting single map')
+        element = list_elem[0]
+        map_min = Elem_dict[element][0]
+        map_max = Elem_dict[element][1]
+        map = np.array(f[path][element])
+        ax = axes
+        im = plt.imshow(map, interpolation='none', cmap='jet', vmin=map_min, vmax=map_max)
+        ax.set_title(element, fontsize=plot_title_font)
+        plt.axis('off')
+        plt.savefig(filename[:-3]+'_'+ element +'.png')
+        plt.close()
+        return None
     
     for r in range(row):       
         for c in range(col):            
