@@ -3,7 +3,7 @@
 
 __author__  = "Ilaria Carlomagno"
 __license__ = "MIT"
-__version__ = "1.0"
+__version__ = "6.0"
 __email__ = "ilaria.carlomagno@elettra.eu"
 
 #This script plots the results of PyMCA fitting
@@ -25,27 +25,7 @@ Elem_dict = {
 #'Al_K':[0,3e-2],
 'Ca_K':[0.25,0.45]
 #'As_K':[1e-7,5e-6],
-#'Fe_K':[0,2e-4],
-#'Cl_K':[0,4e-3],
-#'K_K':[0,1e-3],
-#'S_K':[0,1e-3]
 } 
-
-# Here one defines the elements to ignore
-Elem_to_ignore = [
-'Al_K',
-'Cl_L',
-#'Br_K',
-#'Cr_K',
-#'Cu_K',
-#'Hg_L',
-#'Mn_K',
-#'Ni_K',
-#'P_K',
-'S_K',
-'Si_K',
-'Ti_K'
-]
 
 # Here one sets the font size of the title and of the single plots
 fig_title_font = 10
@@ -74,10 +54,11 @@ def look_for_maps(in_file):
         list_elem = [x for x in list_elem if len(x)<=4]    
         title = 'Fluorescence Intensities (arb. units) from '+in_file[:-3]
     
-    # Here we remove the elements we have decided to ignore
-    if len(Elem_to_ignore) > 0:
-        print('\tIgnoring the following elements: ' + str(Elem_to_ignore))
-    list_elem = [x for x in list_elem if x not in Elem_to_ignore]
+    # Here we pick the elements we have selected
+    if len(Elem_dict) > 0:
+        ignored_elem = [x for x in list_elem if x not in Elem_dict]
+        print('\tIgnoring the following elements:\n\t' + str(ignored_elem))
+    list_elem = [x for x in list_elem if x in Elem_dict]
     num_elem = len(list_elem)
     row = math.floor(math.sqrt(num_elem))
     col = math.ceil(num_elem/row)
