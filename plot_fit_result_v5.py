@@ -100,7 +100,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
             map_min, map_max = np.min(im), np.max(im)
             
         ax.set_title(element, fontsize=plot_title_font)
-        cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
+        #cbar = ax.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
         my_ticks = [map_min, map_max]
         #cbar.set_ticks(my_ticks)
         #cbar.formatter.set_powerlimits((0, 0))
