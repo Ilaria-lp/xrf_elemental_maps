@@ -23,10 +23,10 @@ PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
 
 # Here one defines a list of elements and the min/max values of their maps
 Elem_dict = {
-'Ca_K':[0.412881,0.412919]
-#'P_K':[0,1.6],
-#'Ni_K':[0,1.6e-4],
-#'Zn_K':[0,1.855e-3]
+'Ca_K':[0.412881,0.412919],
+'P_K':[0,1.6],
+'Ni_K':[0,1.6e-4],
+'Zn_K':[0,1.855e-3]
 } 
 
 # Here one sets the font size of the title and of the single plots
@@ -97,15 +97,20 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         if len(Elem_dict[element])>0:
             map_min, map_max = Elem_dict[element][0], Elem_dict[element][1]
         else:    
-            map_min = np.min(im)
-            map_max = np.max(im)
+            map_min, map_max = np.min(im), np.max(im)
+            
         ax.set_title(element, fontsize=plot_title_font)
+        #cbar = ax.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
+        my_ticks = [map_min, map_max]
+        #cbar.set_ticks(my_ticks)
+        #cbar.formatter.set_powerlimits((0, 0))
+        #cbar.formatter.set_useMathText(True)
         ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
 
     plt.suptitle(title)
     plt.axis('off')
     if len(list_elem) ==1:
-        plt.savefig(filename[:-3]+element+'.png')
+        plt.savefig(filename[:-3]+ '_' + element + '.png')
         plt.close()
         return None
     plt.savefig(filename[:-3]+'_maps.png')
@@ -119,33 +124,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     fig.subplots_adjust(hspace=0.5, wspace=0.15)  
     index = 0
     fig.suptitle(title, fontsize=fig_title_font)
-
-
-    # handling the case when a single elemental maps has to be plotted
-    if len(list_elem) == 1:
-        #print('plotting single map')
-        #element = list_elem[0]
-        #map_min = Elem_dict[element][0]
-        #map_max = Elem_dict[element][1]
-        map = np.array(f[path][element])
-        ax = axes
-        im = plt.imshow(map, interpolation='none', cmap='jet', vmin=map_min, vmax=map_max)
-        ax.set_title(element, fontsize=plot_title_font)
-        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
-        min_val = np.round(np.min(map),7)
-        max_val = np.max(map)
-        med_val = (min_val+max_val)/2
-        my_ticks = [min_val, max_val]
-        cbar.set_ticks(my_ticks)
-        cbar.formatter.set_powerlimits((0, 0))
-        cbar.formatter.set_useMathText(True)
-        #cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
-        plt.axis('off')
-        plt.savefig(filename[:-3]+'_'+ element +'.png')
-        plt.close()
-        return None
-    
-    
     
     for r in range(row):       
         for c in range(col):            
