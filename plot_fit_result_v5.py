@@ -102,6 +102,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         ax.set_title(element, fontsize=plot_title_font)
         ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
 
+    plt.suptitle(title)
     plt.axis('off')
     plt.savefig(filename[:-3]+'_maps.png')
     plt.close()
