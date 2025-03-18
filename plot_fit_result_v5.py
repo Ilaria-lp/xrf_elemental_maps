@@ -94,9 +94,11 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
                  )
     # Iterating over the grid returns the Axes.
     for ax, im, element in zip(grid, maps_to_plot.values(), maps_to_plot.keys()):
-        map_min = np.min(im)
-        map_max = np.max(im)
-        #plt.imshow(im, interpolation='none', cmap='jet', )
+        if len(Elem_dict[element])>0:
+            map_min, map_max = Elem_dict[element][0], Elem_dict[element][1]
+        else:    
+            map_min = np.min(im)
+            map_max = np.max(im)
         ax.set_title(element, fontsize=plot_title_font)
         ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
 
