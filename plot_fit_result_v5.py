@@ -30,7 +30,7 @@ Elem_dict = {
 
 # Here one sets the font size of the title and of the single plots
 fig_title_font = 10
-plot_title_font = 8
+plot_title_font = 10
 
 def look_for_maps(in_file):
     print('\t Plotting file: '+str(in_file))
@@ -84,10 +84,10 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     fig.subplots_adjust(hspace=0.5, wspace=0.15)  
     index = 0
     fig.suptitle(title, fontsize=fig_title_font)
-    
+
+
+    # handling the case when a single elemental maps has to be plotted
     if len(list_elem) == 1:
-        # add exception for plotting single maps
-        # this will avoid TypeError 
         print('plotting single map')
         element = list_elem[0]
         map_min = Elem_dict[element][0]
@@ -96,11 +96,15 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         ax = axes
         im = plt.imshow(map, interpolation='none', cmap='jet', vmin=map_min, vmax=map_max)
         ax.set_title(element, fontsize=plot_title_font)
-        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40, location=cbar_pos) 
+        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
+        min_val = np.round(np.min(map),7)
+        max_val = np.max(map)
+        med_val = (min_val+max_val)/2
+        my_ticks = [min_val, max_val]
         cbar.set_ticks(my_ticks)
         cbar.formatter.set_powerlimits((0, 0))
         cbar.formatter.set_useMathText(True)
-        cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
+        #cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
         plt.axis('off')
         plt.savefig(filename[:-3]+'_'+ element +'.png')
         plt.close()
