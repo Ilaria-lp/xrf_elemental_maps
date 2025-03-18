@@ -96,6 +96,11 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         ax = axes
         im = plt.imshow(map, interpolation='none', cmap='jet', vmin=map_min, vmax=map_max)
         ax.set_title(element, fontsize=plot_title_font)
+        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40, location=cbar_pos) 
+        cbar.set_ticks(my_ticks)
+        cbar.formatter.set_powerlimits((0, 0))
+        cbar.formatter.set_useMathText(True)
+        cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
         plt.axis('off')
         plt.savefig(filename[:-3]+'_'+ element +'.png')
         plt.close()
