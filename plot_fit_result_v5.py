@@ -98,8 +98,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         map_max = np.max(im)
         #plt.imshow(im, interpolation='none', cmap='jet', )
         ax.set_title(element, fontsize=plot_title_font)
-        
-        ax.imshow(im, vmin=map_min, vmax=map_max)
+        ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
 
     plt.axis('off')
     plt.savefig(filename[:-3]+'_maps.png')
