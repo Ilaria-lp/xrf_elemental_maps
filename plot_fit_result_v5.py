@@ -113,7 +113,8 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         cbar.set_ticks(my_ticks)
         cbar.formatter.set_powerlimits((0, 0))
         cbar.formatter.set_useMathText(True)
-        
+        cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
+
     plt.suptitle(title)
     plt.axis('off')
     if len(list_elem) ==1:
