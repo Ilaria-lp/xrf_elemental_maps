@@ -31,7 +31,7 @@ Elem_dict = {
 
 # Here one sets the font size of the title and of the single plots
 fig_title_font = 10
-plot_title_font = 10
+plot_title_font = 8
 
 def look_for_maps(in_file):
     print('\t Plotting file: '+str(in_file))
@@ -86,7 +86,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     for element in Elem_dict:
         maps_to_plot[element] = f[path][element]
         
-    #new package
     fig = plt.figure(figsize=(4., 4.))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(row, col),  # creates grid of Axes
@@ -114,8 +113,9 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         cbar.formatter.set_powerlimits((0, 0))
         cbar.formatter.set_useMathText(True)
         cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E')) 
-
-    plt.suptitle(title)
+        cbar.ax.tick_params(labelsize=8)  
+        
+    plt.suptitle(title, fontsize=plot_title_font)
     plt.axis('off')
     if len(list_elem) ==1:
         plt.savefig(filename[:-3]+ '_' + element + '.png')
