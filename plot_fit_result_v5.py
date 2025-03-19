@@ -90,7 +90,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     fig = plt.figure(figsize=(4., 4.))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(row, col),  # creates grid of Axes
-                 axes_pad=0.1,  # pad between Axes in inch.
+                 axes_pad=0.2,  # pad between Axes in inch.
                  cbar_mode = 'each'
                  )
     # Iterating over the grid returns the Axes.
