@@ -120,7 +120,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     if len(list_elem) ==1:
         plt.savefig(filename[:-3]+ '_' + element + '.png')
         plt.close()
-        return None
     plt.savefig(filename[:-3]+'_maps.png')
     plt.close()
     
