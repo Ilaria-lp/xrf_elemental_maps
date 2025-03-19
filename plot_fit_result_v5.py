@@ -103,14 +103,17 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         ax.axes.get_xaxis().set_ticks([])
         ax.axes.get_yaxis().set_ticks([])
         ax.set_title(element, fontsize=plot_title_font)
-        #cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
+        
+        # display the image
+        im_plot = ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
+                
+        # Create a colorbar for the current axis
+        cbar = plt.colorbar(im_plot, cax=ax.cax)
         my_ticks = [map_min, map_max]
-
-        #cbar.set_ticks(my_ticks)
-        #cbar.formatter.set_powerlimits((0, 0))
-        #cbar.formatter.set_useMathText(True)
-        ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
-
+        cbar.set_ticks(my_ticks)
+        cbar.formatter.set_powerlimits((0, 0))
+        cbar.formatter.set_useMathText(True)
+        
     plt.suptitle(title)
     plt.axis('off')
     if len(list_elem) ==1:
