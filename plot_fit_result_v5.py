@@ -125,55 +125,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     plt.close()
     return None
     
-    
-    #################################
-    
-    fig, axes = plt.subplots(row, col)
-    fig.subplots_adjust(hspace=0.5, wspace=0.15)  
-    index = 0
-    fig.suptitle(title, fontsize=fig_title_font)
-    
-    for r in range(row):       
-        for c in range(col):            
-            if index < len(list_elem):
-                element = list_elem[index]
-                map = np.array(f[path][element])
-                ax = axes[r, c]
-                # Here we set manually the max and min value of the colorbar
-                if element in Elem_dict:
-                    map_min = Elem_dict[element][0]
-                    map_max = Elem_dict[element][1]
-                    im = ax.imshow(map, interpolation='none', cmap='jet', vmin=map_min, vmax=map_max)
-                else:
-                    im = ax.imshow(map, interpolation='none', cmap='viridis')
-                ax.set_title(element, fontsize=plot_title_font)
-                ax.axis('off')                     # Hide axes for better visualization
-                
-                cbar_pos = 'right'
-                #if is_flat:
-                #    cbar_pos = 'bottom'
-                cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40, location=cbar_pos)
-                
-                min_val = np.min(map)
-                max_val = np.max(map)
-                med_val = (min_val+max_val)/2
-                my_ticks = np.round( [min_val,med_val, max_val],2 )
-                cbar.set_ticks(my_ticks)
-                cbar.formatter.set_powerlimits((0, 0))
-                cbar.formatter.set_useMathText(True)
-                #cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
-
-                index += 1
-            else:
-                # Hide unused subplots
-                axes[r, c].axis('off')
-    # Save the final figure
-    plt.savefig(filename[:-3]+'_maps.png')
-    #plt.savefig(in_file[:-3]+'_maps.png', bbox_inches='tight')
-    #plt.show()
-    plt.close()  
-
-
 ####################################################################
 
 def run():
