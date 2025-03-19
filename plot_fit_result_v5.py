@@ -123,7 +123,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         return None
     plt.savefig(filename[:-3]+'_maps.png')
     plt.close()
-    return None
     
 ####################################################################
 
