@@ -91,6 +91,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(row, col),  # creates grid of Axes
                  axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode = 'each'
                  )
     # Iterating over the grid returns the Axes.
     for ax, im, element in zip(grid, maps_to_plot.values(), maps_to_plot.keys()):
@@ -100,8 +101,11 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
             map_min, map_max = np.min(im), np.max(im)
             
         ax.set_title(element, fontsize=plot_title_font)
-        #cbar = ax.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
+        #cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
         my_ticks = [map_min, map_max]
+        # removing the ticks
+        ax.axes.get_xaxis().set_ticks([])
+        ax.axes.get_yaxis().set_ticks([])
         #cbar.set_ticks(my_ticks)
         #cbar.formatter.set_powerlimits((0, 0))
         #cbar.formatter.set_useMathText(True)
@@ -153,7 +157,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
                 cbar.set_ticks(my_ticks)
                 cbar.formatter.set_powerlimits((0, 0))
                 cbar.formatter.set_useMathText(True)
-                
                 #cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%d')) 
 
                 index += 1
