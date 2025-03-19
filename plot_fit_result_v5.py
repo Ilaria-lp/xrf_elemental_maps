@@ -99,13 +99,13 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
             map_min, map_max = Elem_dict[element][0], Elem_dict[element][1]
         else:    
             map_min, map_max = np.min(im), np.max(im)
-            
-        ax.set_title(element, fontsize=plot_title_font)
-        #cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
-        my_ticks = [map_min, map_max]
         # removing the ticks
         ax.axes.get_xaxis().set_ticks([])
         ax.axes.get_yaxis().set_ticks([])
+        ax.set_title(element, fontsize=plot_title_font)
+        #cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, aspect=40) 
+        my_ticks = [map_min, map_max]
+
         #cbar.set_ticks(my_ticks)
         #cbar.formatter.set_powerlimits((0, 0))
         #cbar.formatter.set_useMathText(True)
