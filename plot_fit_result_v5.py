@@ -86,7 +86,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     for element in Elem_dict:
         maps_to_plot[element] = f[path][element]
         
-    fig = plt.figure(figsize=(4., 4.))
+    fig = plt.figure(figsize=(8., 8.))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(row, col),  # creates grid of Axes
                  axes_pad=0.1,  # pad between Axes in inch.
