@@ -30,8 +30,9 @@ Elem_dict = {
 } 
 
 # Here one sets the font size of the title and of the single plots
-fig_title_font = 10
-plot_title_font = 8
+fig_title_font = 20
+plot_title_font = 15
+cbar_font_size = 8
 
 def look_for_maps(in_file):
     print('\t Plotting file: '+str(in_file))
@@ -86,10 +87,10 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
     for element in Elem_dict:
         maps_to_plot[element] = f[path][element]
         
-    fig = plt.figure(figsize=(8., 8.))
+    fig = plt.figure(figsize=(10., 10.))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(row, col),  # creates grid of Axes
-                 axes_pad=0.1,  # pad between Axes in inch.
+                 axes_pad=0.15,  # pad between Axes in inch.
                  cbar_mode = 'each'
                  )
     # Iterating over the grid returns the Axes.
@@ -98,6 +99,7 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
             map_min, map_max = Elem_dict[element][0], Elem_dict[element][1]
         else:    
             map_min, map_max = np.min(im), np.max(im)
+        
         # removing the ticks
         ax.axes.get_xaxis().set_ticks([])
         ax.axes.get_yaxis().set_ticks([])
@@ -110,13 +112,13 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         cbar = plt.colorbar(im_plot, cax=ax.cax)
         my_ticks = [map_min, map_max]
         cbar.set_ticks(my_ticks)
-        cbar.ax.tick_params(labelsize=6)
+        cbar.ax.tick_params(labelsize = cbar_font_size)
         cbar.formatter.set_powerlimits((0, 0))
         cbar.formatter.set_useMathText(True)
         cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E')) 
-        cbar.ax.tick_params(labelsize=4)  
+        cbar.ax.tick_params(labelsize=10)  
         
-    plt.suptitle(title, fontsize=plot_title_font)
+    plt.suptitle(title, fontsize = plot_title_font)
     plt.axis('off')
     if len(list_elem) ==1:
         plt.savefig(filename[:-3]+ '_' + element + '.png')
