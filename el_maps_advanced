@@ -1,0 +1,370 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__author__  = "Ilaria Carlomagno"
+__license__ = "MIT"
+__version__ = "6.0"
+__email__ = "ilaria.carlomagno@elettra.eu"
+
+test_mode = True
+scattering_ratio = True
+
+#This script plots the results of PyMCA fitting
+
+import glob
+import h5py
+import math
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from matplotlib.colors import LogNorm
+from matplotlib.ticker import FormatStrFormatter, LogLocator, LogFormatterSciNotation
+from mpl_toolkits.axes_grid1 import ImageGrid
+import numpy as np
+import os
+
+EXT = "h5"
+PATH_TO_MASS_FR = "/xrf_fit/results/massfractions/"
+PATH_TO_PARAMS = "/xrf_fit/results/parameters/"
+
+# Here one defines a list of elements and the min/max values of their maps
+Elem_dict = {
+'Ca_K':[0.412881,0.412919],
+'P_K':[0,1.6],
+'Zn_K':[0,1.855e-3]
+} 
+
+# creating flag for ratio map
+Ca_P_ratio = True
+
+# Here one sets the font size of the title and of the single plots
+fig_title_font = 20
+plot_title_font = 25
+cbar_font_size = 18
+
+def find_mask(filename):
+    try:
+        mask_name = str(filename[:5])
+        mask_file = glob.glob('./{0}*'.format(mask_name)+'_MASK.h5')
+        mask_file = str(mask_file[0][2:])
+        mf = h5py.File(mask_file,'r')
+        mask = np.array(mf['mask'])
+        return mask
+    except IndexError:
+        print('\t⚠Mask not found')
+        return 0
+
+def apply_mask(map, mask):
+    masked_map = np.multiply(map, mask)
+    return masked_map
+
+def look_for_maps(in_file):
+    print('\t Plotting file: '+str(in_file))
+    is_flat = False
+    no_concentrations = False
+    out_path = './'
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+            
+    f = h5py.File(in_file, 'r')
+    key = list(f.keys())[0]
+    path = key + PATH_TO_MASS_FR
+    
+    try:
+        list_elem = list(f[path].keys())
+        title = 'Mass Fractions'
+    except KeyError:
+        no_concentrations = True
+        print('\tNo concentrations found! Plotting intensities!')
+        path = key + PATH_TO_PARAMS
+        list_elem = list(f[path].keys())
+        list_elem = [x for x in list_elem if len(x)<=4]    
+        title = 'Fluorescence Intensities (arb. units)'
+    
+    # Here we pick the elements we have selected
+    if len(Elem_dict) > 0:
+        ignored_elem = [x for x in list_elem if x not in Elem_dict]
+        print('\tIgnoring the following elements:\n\t' + str(ignored_elem))
+    list_elem = [x for x in list_elem if x in Elem_dict]
+    num_elem = len(list_elem)
+    row = math.floor(math.sqrt(num_elem))
+    col = math.ceil(num_elem/row)
+
+    shape = np.shape(np.array(f[path][list_elem[0]]))
+    map_height = shape[0]
+    map_width = shape[1]
+    if map_width / map_height > 1:
+        is_flat = True
+        row *=2
+        col = math.ceil(col/2)
+  
+    return list_elem, row, col, title, path
+    #map_aspect_ratio = img_width / img_height  # Width-to-height ratio of the maps
+    #img_width = 2 * col  # Base width per column
+    #fig_height = (fig_width / col) * row / map_aspect_ratio  # Adjust height based on aspect ratio
+
+def plot_elemental_maps(filename, list_elem, row, col, title, path):
+    f = h5py.File(filename, 'r')
+    maps_to_plot = {}
+    
+    for element in Elem_dict:
+        maps_to_plot[element] = f[path][element]
+        
+    fig = plt.figure(figsize=(10., 10.))
+    grid = ImageGrid(fig, 111, 
+                 nrows_ncols=(row, col),  # creates grid of Axes
+                 axes_pad=0.3,            # pad between Axes in inch.
+                 cbar_mode = 'each'
+                 )
+    # Iterating over the grid returns the Axes.
+    for ax, im, element in zip(grid, maps_to_plot.values(), maps_to_plot.keys()):
+        if len(Elem_dict[element])>0:
+            map_min, map_max = Elem_dict[element][0], Elem_dict[element][1]
+        else:    
+            map_min, map_max = np.min(im), np.max(im)
+        
+        # removing the ticks
+        ax.axes.get_xaxis().set_ticks([])
+        ax.axes.get_yaxis().set_ticks([])
+        ax.set_title(element, fontsize=plot_title_font)
+        
+        # display the image
+        im_plot = ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
+                
+        # Create a colorbar for the current axis
+        cbar = plt.colorbar(im_plot, cax=ax.cax)
+        my_ticks = [map_min, map_max]
+        cbar.set_ticks(my_ticks)
+        cbar.ax.tick_params(labelsize = cbar_font_size)
+        cbar.formatter.set_powerlimits((0, 0))
+        cbar.formatter.set_useMathText(True)
+        cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E')) 
+        
+    plt.suptitle(title, fontsize = plot_title_font)
+    plt.axis('off')
+    if len(list_elem) ==1:
+        plt.savefig(filename[:-3]+ '_' + element + '.png')
+        plt.close()
+    plt.savefig(filename[:-3]+'_maps.png')
+    plt.close()
+    
+    
+def plot_single_element(filename, element, row, col, title, path):
+    f = h5py.File(filename, 'r')   
+    map_min, map_max = Elem_dict[element][0], Elem_dict[element][1]
+
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(row*10, col*5))
+
+    im = f[path][element]
+    # applying mask
+    mask = find_mask(filename)
+    im = apply_mask(im, mask)
+    
+    
+    # display the image
+    im_plot = ax.imshow(im, cmap='jet', vmin=map_min, vmax=map_max)
+    
+    # removing the ticks
+    ax.axes.get_xaxis().set_ticks([])
+    ax.axes.get_yaxis().set_ticks([])
+    ax.set_title(element, fontsize=plot_title_font)     
+    
+    # Create a colorbar for the current axis
+    cbar = fig.colorbar(im_plot, ax=ax, fraction=0.14, pad=0.04)  # Adjust fraction & pad for size
+    my_ticks = [map_min, map_max]
+    cbar.set_ticks(my_ticks)
+    cbar.ax.tick_params(labelsize = cbar_font_size)
+    cbar.formatter.set_powerlimits((0, 0))
+    cbar.formatter.set_useMathText(True)
+    cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E')) 
+
+    plt.suptitle(title, fontsize = plot_title_font)
+    plt.axis('off')
+
+    plt.subplots_adjust(left=-0.2)
+    
+    plt.savefig(filename[:-3]+'_' + str(element)+ '.png')
+    plt.close()
+    
+    
+def plot_scattering_ratio(filename, row, col):
+    f = h5py.File(filename, 'r')   
+    key = list(f.keys())[0]
+    path = key + PATH_TO_PARAMS
+    
+    Compton = f[path]['Scatter_Compton000']
+    Rayleigh = f[path]['Scatter_Peak000']
+    
+    C_over_R = np.divide(Compton, Rayleigh, out=np.zeros_like(Compton), where=(Rayleigh != 0))  # Avoid division by zero
+    # applying mask
+    mask = find_mask(filename)
+    C_over_R = apply_mask(C_over_R, mask)
+    
+    C_over_R = np.where(C_over_R <= 0, 1e-10, C_over_R)  # Replace negatives/zeros with small positive
+    
+    # Filter out NaNs/infs and set valid vmin/vmax
+    valid_vals = C_over_R[np.isfinite(C_over_R) & (C_over_R > 0)]
+    
+    if len(valid_vals) == 0:
+        raise ValueError("No valid positive values in Comtpon/Rrayleigh ratio.")
+        
+    vmin = np.percentile(valid_vals, 1)  # 1st percentile to avoid outliers
+    vmax = np.percentile(valid_vals, 99)  # 99th percentile to avoid outliers
+    
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(row*10, col*5))
+    
+    # Plot in log scale using LogNorm
+    im_plot = ax.imshow(
+        C_over_R,
+        cmap='jet',
+        norm=LogNorm(vmin=vmin, vmax=vmax)  # Auto-scales to log
+    )
+        
+    # Remove ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
+    # Create colorbar with log formatting
+    cbar = fig.colorbar(im_plot, ax=ax, fraction=0.14, pad=0.04)
+    cbar.ax.tick_params(labelsize = cbar_font_size)
+    
+    # Customize colorbar ticks for log scale
+    cbar.ax.yaxis.set_major_locator(LogLocator(base=10))  # Log-spaced ticks
+    cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E'))  # Scientific notation
+    
+    # Optional: Manually set tick positions (e.g., decades)
+    # cbar.set_ticks([1e1, 1e2, 1e3, 1e4])  # Example: 10^1, 10^2, etc.
+    
+    # Format colorbar ticks for log scale
+    cbar.ax.yaxis.set_major_locator(LogLocator(base=10))
+    cbar.ax.yaxis.set_major_formatter(LogFormatterSciNotation())  # Default log formatter
+    
+    plt.suptitle('Compton/Rayleigh', fontsize=plot_title_font)
+    plt.axis('off')
+    
+    plt.subplots_adjust(left=-0.2)
+
+    plt.savefig(filename[:-3] + '_scatt_ratio.png', dpi=300)
+    plt.close()
+    
+def plot_Ca_P_ratio(filename, row, col):
+    f = h5py.File(filename, 'r')   
+    key = list(f.keys())[0]
+    path = key + PATH_TO_PARAMS
+    
+    Ca = np.array(f[path]['Ca_K'])
+    P = np.array(f[path]['P_K'])
+    
+    Ca_over_P = np.divide(Ca, P, out=np.zeros_like(Ca), where=(P != 0))  # Avoid division by zero
+    # applying mask
+    mask = find_mask(filename)
+    Ca_over_P = apply_mask(Ca_over_P, mask)
+
+    Ca_over_P = np.where(Ca_over_P <= 0, 1e-10, Ca_over_P)  # Replace negatives/zeros with small positive
+    
+    # Filter out NaNs/infs and set valid vmin/vmax
+    valid_vals = Ca_over_P[np.isfinite(Ca_over_P) & (Ca_over_P > 0)]
+    
+    if len(valid_vals) == 0:
+        raise ValueError("No valid positive values in Ca/P ratio.")
+        
+    vmin = 4   #np.percentile(valid_vals, 1)  # 1st percentile to avoid outliers
+    vmax = 300 #np.percentile(valid_vals, 99)  # 99th percentile to avoid outliers
+    
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(row*10, col*5))
+    ax.set_title('Ca/P', fontsize=plot_title_font)
+    
+    # Plot in log scale using LogNorm
+    im_plot = ax.imshow(
+        Ca_over_P,
+        cmap='jet',
+        norm=LogNorm(vmin=vmin, vmax=vmax)  # Auto-scales to log
+    )
+        
+    # Remove ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
+    # Create colorbar with log formatting
+    cbar = fig.colorbar(im_plot, ax=ax, fraction=0.14, pad=0.04)
+    cbar.ax.tick_params(labelsize = cbar_font_size)
+    
+    # Customize colorbar ticks for log scale
+    cbar.ax.yaxis.set_major_locator(LogLocator(base=10))  # Log-spaced ticks
+    cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E'))  # Scientific notation
+    
+    # Optional: Manually set tick positions (e.g., decades)
+    # cbar.set_ticks([1e1, 1e2, 1e3, 1e4])  # Example: 10^1, 10^2, etc.
+    
+    # Format colorbar ticks for log scale
+    cbar.ax.yaxis.set_major_locator(LogLocator(base=10))
+    cbar.ax.yaxis.set_major_formatter(LogFormatterSciNotation())  # Default log formatter
+    
+    plt.axis('off')
+    
+    plt.subplots_adjust(left=-0.2)
+
+    plt.savefig(filename[:-3] + '_Ca_P_ratio_log.png', dpi=300)
+    plt.close()
+    
+####################################################################
+
+def run():
+    print('\n')
+    print('\t-------------------------------------------------\n')
+    print('\t---------           Welcome!         ------------\n')
+    print("\t---         Let's plot your XRF maps!          ---\n")
+    print('\t-------------------------------------------------\n')
+    
+    in_path = './'
+    #out_path = in_path + 'plots'
+    # in case out_path is read only, uncomment next line
+    #out_path = str(input('Where do you want to save the reshaped maps?' ))
+    
+    # checks automatically all the h5 files in the in_path 
+    file_list = glob.glob('{0}/*'.format(in_path)+EXT)
+    print('\tI found '+str(len(file_list))+' files matching the extension '+EXT+':')
+    print('\t' + str(file_list))
+    print('\n')
+    
+    if len(file_list) == 0:
+        print("\t⚠ Can't do much with 0 files! Sorry!")
+        print("\tMove the maps in the same folder as the program and try again!")   
+    else: 
+        print("\tThe maps from all the files mentioned above will be saved in a png file.\n")
+        
+        ### testing first
+        file_test = '170427_Velia_Control_reshaped.h5'
+        list_elem, row, col, title, path = look_for_maps(file_test)
+        
+        if test_mode:
+            mask = find_mask(file_test)
+            
+            for elem in Elem_dict.keys():
+                plot_single_element(file_test, elem, row, col, title, path)
+            
+            if Ca_P_ratio:
+                plot_Ca_P_ratio(file_test, row, col)
+           
+            if scattering_ratio:
+                plot_scattering_ratio(file_test, row, col)
+                
+            print('\t ☆ END OF TEST ☆ \n')
+            return None
+        
+       
+        #plot_elemental_maps(file_test, list_elem, row, col, title, path)
+            
+        for filename, i in zip(file_list, range(len(file_list))):
+            filename = filename[2:]
+            list_elem, row, col, title, path = look_for_maps(filename)
+            for element in list_elem:
+                plot_single_element(filename, element, row, col, title, path)
+            print('\n- - - - File {0}/{1} successfully plotted.\n'.format(i+1, len(file_list)))
+
+    print('\t ☆ Have a nice day ☆ \n')
+
+if __name__ == "__main__":
+    run()
