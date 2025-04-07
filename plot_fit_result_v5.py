@@ -116,7 +116,6 @@ def plot_elemental_maps(filename, list_elem, row, col, title, path):
         cbar.formatter.set_powerlimits((0, 0))
         cbar.formatter.set_useMathText(True)
         cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.1E')) 
-        cbar.ax.tick_params(labelsize=10)  
         
     plt.suptitle(title, fontsize = plot_title_font)
     plt.axis('off')
